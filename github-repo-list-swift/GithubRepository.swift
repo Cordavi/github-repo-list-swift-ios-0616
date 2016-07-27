@@ -16,7 +16,7 @@ class GithubRepository {
    init(dictionary: [String: AnyObject]) {
       self.fullName = checkFullName(dictionary)
       self.htmlURL = checkhtmlURL(dictionary)
-      self.repositoryID = String(dictionary["id"])
+      self.repositoryID = checkRepositoryID(dictionary)
    }
    
    func checkFullName(dictionary: [String: AnyObject]) -> String {
@@ -29,14 +29,24 @@ class GithubRepository {
    }
    
    func checkhtmlURL(dictionary: [String: AnyObject]) -> NSURL {
-      let repoURLObject = dictionary["html_url"]
-      let htmlURL = String(repoURLObject)
-      let repoURL = NSURL(string: htmlURL)
-      guard let returnRepoURL = repoURL else {
+      let htmlURLObject = dictionary["html_url"]
+      guard let htmlURL = htmlURLObject where String(htmlURLObject) != nil else {
          return NSURL()
       }
-      return returnRepoURL
+
+      let htmlURLNSURL = NSURL(string: String(htmlURL))
+      guard let htmlRepoURL = htmlURLNSURL else {
+         return NSURL()
+      }
+      return htmlRepoURL
    }
    
-   func
+   func checkRepositoryID(dictionary: [String: AnyObject]) -> String {
+      let repoIDObject = dictionary["id"]
+      guard let repoID = repoIDObject where String(repoIDObject) != nil else {
+         return ""
+      }
+      let repoIDString = String(repoID)
+      return repoIDString
+   }
 }
