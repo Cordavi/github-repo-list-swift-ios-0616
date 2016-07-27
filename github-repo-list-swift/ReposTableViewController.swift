@@ -19,7 +19,6 @@ class ReposTableViewController: UITableViewController {
       
       dataStore.getRepositoriesWithCompletion {
          dispatch_async(dispatch_get_main_queue()) {
-            // your code that touches the UI here, like, maybe:
             self.tableView.reloadData()
          }
       }
