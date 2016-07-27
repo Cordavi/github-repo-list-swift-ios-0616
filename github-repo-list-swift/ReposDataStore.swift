@@ -9,9 +9,18 @@
 import UIKit
 
 class ReposDataStore {
-    
-    static let sharedInstance = ReposDataStore()
-    
-    
-
+   
+   static let sharedInstance = ReposDataStore()
+   var repositories = [GithubRepository]()
+   
+   func getRepositoriesWithCompletion(completion: () -> Void) {
+      GithubAPIClient.getRepositoriesWithCompletion { responseData in
+         ReposDataStore.sharedInstance.repositories.removeAll()
+         
+         for repository in responseData {
+            ReposDataStore.sharedInstance.repositories.append(GithubRepository(dictionary: repository))
+         }
+         completion()
+      }
+   }
 }

@@ -9,8 +9,8 @@
 import UIKit
 
 class ReposTableViewController: UITableViewController {
-   
-   var gitHubData: [[String : AnyObject]] = []
+   let dataStore = ReposDataStore.sharedInstance
+   var gitHubData = [GithubRepository]()
    
    override func viewDidLoad() {
       super.viewDidLoad()
@@ -18,29 +18,13 @@ class ReposTableViewController: UITableViewController {
       self.tableView.accessibilityLabel = "tableView"
       self.tableView.delegate = self
       
-      let urlString = "https://api.github.com/repositories?client_id=" + "\(APIKeys.clientID)" + "&client_secret=" + "\(APIKeys.clientSecret)"
-      
-      guard let url = NSURL(string: urlString) else {
-         return
-      }
-      
-      let urlSession = NSURLSession.sharedSession()
-      urlSession.dataTaskWithURL(url) {data, response, error in
-         guard let data = data where error == nil else {
-            return
-         }
-         
-         do {
-            let responseData = try NSJSONSerialization.JSONObjectWithData(data, options: []) as? [[String: AnyObject]]
-            if let responseData = responseData {
-               self.gitHubData = responseData
-            }
+      dataStore.getRepositoriesWithCompletion {
+         self.gitHubData = self.dataStore.repositories
+         dispatch_async(dispatch_get_main_queue()) {
+            // your code that touches the UI here, like, maybe:
             self.tableView.reloadData()
-//            print(responseData?[0]["name"])
-         } catch {
-            print(error)
          }
-      }.resume()
+      }
    }
    
    // MARK: - Table view data source
@@ -52,9 +36,9 @@ class ReposTableViewController: UITableViewController {
    override func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
       let cell = tableView.dequeueReusableCellWithIdentifier("repoCell", forIndexPath: indexPath)
       
-      cell.textLabel?.text = gitHubData[indexPath.row]["name"] as? String
+      cell.textLabel?.text = gitHubData[indexPath.row].fullName
       return cell
    }
    
-   
 }
+
